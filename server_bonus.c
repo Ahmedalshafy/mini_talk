@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   server.c                                           :+:      :+:    :+:   */
+/*   server_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aalshafy <aalshafy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 10:00:38 by aalshafy          #+#    #+#             */
-/*   Updated: 2024/01/22 19:22:53 by aalshafy         ###   ########.fr       */
+/*   Updated: 2024/01/22 19:22:33 by aalshafy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,13 @@ void	ft_putlong(long nbr)
 	write(1, &temp, 1);
 }
 
-void	sig_handle(int signal)
+void	sig_handle(int signal, siginfo_t *info, void *context)
 {
 	static int	i;
-	static int	n;
 	int			nb;
+	static int	n;
 
+	(void)context;
 	if (signal == SIGUSR1)
 		nb = 0;
 	else
@@ -38,25 +39,31 @@ void	sig_handle(int signal)
 	if (i == 8)
 	{
 		if (n == '\0')
+		{
 			write(1, "\n", 1);
+			kill(info->si_pid, SIGUSR1);
+		}
 		else
 			write(1, &n, 1);
 		i = 0;
 		n = 0;
 	}
+	else
+		kill(info->si_pid, SIGUSR2);
 }
 
 int	main(void)
 {
 	struct sigaction	sigact;
 
-	sigact.sa_handler = &sig_handle;
-	sigact.sa_flags = SA_RESTART;
+	sigemptyset(&sigact.sa_mask);
+	sigact.sa_sigaction = &sig_handle;
+	sigact.sa_flags = SA_SIGINFO | SA_RESTART;
 	sigaction(SIGUSR1, &sigact, 0);
 	sigaction(SIGUSR2, &sigact, 0);
 	ft_putlong(getpid());
 	write(1, "\n", 1);
 	while (1)
-		usleep(100);
+		pause();
 	return (0);
 }

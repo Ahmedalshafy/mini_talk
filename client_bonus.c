@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   client.c                                           :+:      :+:    :+:   */
+/*   client_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aalshafy <aalshafy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 10:20:30 by aalshafy          #+#    #+#             */
-/*   Updated: 2024/01/22 19:21:25 by aalshafy         ###   ########.fr       */
+/*   Updated: 2024/01/22 19:19:46 by aalshafy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,15 @@ void	ft_error_check(int argc, char **argv)
 	}
 }
 
-void	send_message(int server_pid, char *str)
+void	ft_client_handler(int signum)
+{
+	if (signum == SIGUSR1)
+		ft_printf("The message ended sucessfully\n");
+	else if (signum == SIGUSR2)
+		ft_printf("Server recieved a signal sucessfully\n");
+}
+
+void	send_message(pid_t server_pid, char *str)
 {
 	int	i;
 	int	j;
@@ -82,9 +90,15 @@ void	send_message(int server_pid, char *str)
 
 int	main(int argc, char **argv)
 {
-	pid_t	server_pid;
+	pid_t				server_pid;
+	struct sigaction	sigact;
 
 	ft_error_check(argc, argv);
+	sigemptyset(&sigact.sa_mask);
+	sigact.sa_handler = &ft_client_handler;
+	sigact.sa_flags = SA_RESTART;
+	sigaction(SIGUSR1, &sigact, 0);
+	sigaction(SIGUSR2, &sigact, 0);
 	server_pid = ft_atopid(argv[1]);
 	send_message(server_pid, argv[2]);
 	return (0);

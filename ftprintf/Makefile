@@ -1,30 +1,37 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    makefile                                           :+:      :+:    :+:    #
+#    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: aalshafy <aalshafy@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/09 09:31:12 by aalshafy          #+#    #+#              #
-#    Updated: 2024/01/20 17:59:05 by aalshafy         ###   ########.fr        #
+#    Updated: 2023/11/19 11:45:28 by aalshafy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SERVER = server_bonus
-CLIENT = client_bonus
-CC = gcc
+NAME = libftprintf.a
+CFILES = \
+		ft_printf.c ft_putchar.c ft_putstr.c ft_putnbr.c ft_puthex.c \
+		ft_putadd.c ft_putunsigned.c	
+
+OFILES = $(CFILES:.c=.o)
+cc = cc
 CFLAGS = -Wall -Wextra -Werror
 
-all:
-	$(CC) $(CFLAGS) -o $(CLIENT) client_bon.c
-	$(CC) $(CFLAGS) -o $(SERVER) server_bon.c
+all : $(NAME)
+
+$(NAME): $(OFILES)
+	ar -rcs $(NAME) $(OFILES)
+	
+%.o: %.c
+	$(cc) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(MAKE) clean -C 
+	rm -rf $(OFILES)
 
-fclean: 
-	$(MAKE) fclean -C 
-	rm -rf $(CLIENT) $(SERVER)
+fclean: clean
+	rm -rf $(NAME)
 
 re: fclean all
 
